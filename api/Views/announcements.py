@@ -42,8 +42,7 @@ class AnnouncementView(APIView):
             announcement = Announce.objects.get(id=id)
             announcement.delete()
             return Response(
-                {"message": "Announcement deleted successfully."},
-                status=status.HTTP_200_OK,
+                status=status.HTTP_204_NO_CONTENT,
             )
         except Announce.DoesNotExist:
             return Response(

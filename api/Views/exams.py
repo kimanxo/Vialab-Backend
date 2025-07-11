@@ -27,10 +27,6 @@ class ExamView(APIView):
                 {"message": "Exam Not Found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-
-
-
-
     def put(self, request, id):
         try:
             exam = Exam.objects.get(id=id)
@@ -39,9 +35,9 @@ class ExamView(APIView):
             if serializer.is_valid():
                 try:
                     # Ensure price is positive before saving
-                    if "price" in serializer.validated_data:
-                        serializer.validated_data["price"] = abs(
-                            float(serializer.validated_data["price"])
+                    if "price" in serializer.validated_data: #type: ignore
+                        serializer.validated_data["price"] = abs(  # type: ignore
+                            float(serializer.validated_data["price"])  # type: ignore
                         )
 
                     serializer.save()

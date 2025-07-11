@@ -18,7 +18,7 @@ class FeedbacksView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
-        serializer = FeedbackSerializer(data=request.data)
+        serializer = FeedbackSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -49,15 +49,16 @@ class FeedbackView(APIView):
                 {"message": "Feedback Not Found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-
     def put(self, request, id):
         try:
             feedback = Feedback.objects.get(id=id)
-            serializer = FeedbackSerializer(feedback, data=request.data, partial=True)
+            serializer = FeedbackSerializer(
+                feedback, data=request.data, partial=True, context={"request": request}
+            )
 
             if serializer.is_valid():
                 # Mark feedback as read when updating
-                serializer.validated_data["read"] = True
+                serializer.validated_data["read"] = True #type: ignore
                 serializer.save()
 
                 return Response(serializer.data, status=status.HTTP_200_OK)

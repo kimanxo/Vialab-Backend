@@ -15,6 +15,22 @@ class FeedbackSerializer(serializers.ModelSerializer):
         model = Feedback
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+
+        # If this is a POST request from an unauthenticated user
+        if request and request.method == "POST" and not request.user.is_authenticated:
+            self.fields.pop("read", None)
+            self.fields.pop("reply", None)
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and not request.user.is_authenticated:
+            validated_data.pop("read", None)
+            validated_data.pop("reply", None)
+        return super().create(validated_data)
+
 
 # Serializer for the Exam model.
 class ExamSerializer(serializers.ModelSerializer):

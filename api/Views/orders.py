@@ -14,19 +14,29 @@ class OrderCheckView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        code = request.data.get("code")
+        if not code:
+            return Response(
+                {"message": "Missing required field: code"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
-            code = request.data["code"]
             order = Order.objects.get(code=code)
             done = order.done
             email = order.email or None
-            if request.data.get("email") :
+
+            # If user provided new email, update it
+            if request.data.get("email"):
                 order.email = request.data["email"]
-                return Response({"done": done, "email": email})
-            return Response({"done": done,"email": email})
+                order.save()
+
+            return Response({"done": done, "email": email})
 
         except Order.DoesNotExist:
             return Response(
-                {"message":"Order Not Found"}, status=status.HTTP_404_NOT_FOUND
+                {"message": "Order Not Found"},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
 
